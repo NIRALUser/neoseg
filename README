@@ -1,0 +1,12 @@
+==Neoseg==
+
+This tool computes an automatic segmentation of neonatal brain MRI. Automatic segmentation of these images is a challenging task mainly due to the low intensity contrast and the non-uniformity of white matter intensities, where white matter can be divided into early myelination regions and non-myelinated regions. The degree of myelination is a fractional voxel property that represents regional changes of white matter as a function of age. Our method makes use of a registered probabilistic brain atlas to select training samples and to be used as a spatial prior.
+
+==License==
+
+This software is distibuted unde the Apache License 2.0 (See LICENSE.txt)
+
+==Webpage==
+
+http://www.nitrc.org/projects/neoseg/
+
