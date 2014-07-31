@@ -274,6 +274,8 @@ NeoSegParametersXMLFileWriter
 
   WriteField<std::string>(this, "ATLAS-DIRECTORY", p->GetAtlasDirectory(), output);
 
+  WriteField<std::string>(this, "ATLAS-FORMAT", p->GetAtlasFormat(), output);
+
   WriteField<std::string>(this, "ATLAS-ORIENTATION", p->GetAtlasOrientation(), output);
 
   WriteField<std::string>(this, "OUTPUT-DIRECTORY", p->GetOutputDirectory(), output);

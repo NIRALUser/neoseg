@@ -50,17 +50,23 @@ CheckImageFormat( std::string format , bool input = false )//if input format, we
   std::string ext ;
   format.erase( format.find_last_not_of( " \n\r\t") + 1 ) ;//if XML empty, format is just white spaces. We remove them.
   std::transform( format.begin(), format.end(), format.begin(), ::tolower ) ;//set string to lower case to simplify the comparisons
-  if( format.compare( "analyze" ) == 0 )
+  if( !format.compare( "analyze" ) )
   {
     ext = ".hdr" ;
   }
-  else if( format.compare( "hdr" ) == 0
-        || format.compare( "gipl" ) == 0
-        || format.compare( "gipl.gz" ) == 0
-        || format.compare( "nrrd" ) == 0
-        || format.compare( "nhdr" ) == 0
-        || format.compare( "nii.gz" ) == 0
-        || format.compare( "nii" ) == 0
+  else if( !format.compare( "meta" ) )
+  {
+    ext = ".mha" ;
+  }
+  else if( !format.compare( "hdr" )
+        || !format.compare( "gipl" )
+        || !format.compare( "gipl.gz" )
+        || !format.compare( "nrrd" )
+        || !format.compare( "nhdr" )
+        || !format.compare( "nii.gz" )
+        || !format.compare( "nii" )
+        || !format.compare( "mha" )
+        || !format.compare( "mhd" )
          )
   {
     ext = "." + format ;
@@ -71,7 +77,7 @@ CheckImageFormat( std::string format , bool input = false )//if input format, we
   }
   else
   {
-    std::string str_error = "Image format is not recognized. Verify that your type is one of the following:\n\
+    std::string str_error = "\'" + format + "\' is not a recognized format. Verify that your type is one of the following:\n\
     analyze\n\
     hdr\n\
     gipl\n\
@@ -150,6 +156,7 @@ runNeonateSeg(NeoSegParameters* neop, bool debugflag, bool writemoreflag)
   muLogMacro(<< "=== Parameters ===\n");
   muLogMacro(<< "Suffix: " << neop->GetSuffix() << "\n");
   muLogMacro(<< "Atlas Directory: " << neop->GetAtlasDirectory() << "\n");
+  muLogMacro(<< "Atlas Format: " << neop->GetAtlasFormat() << "\n");
   muLogMacro(<< "Atlas Orientation: " << neop->GetAtlasOrientation() << "\n");
   muLogMacro(<< "Output Directory: " << neop->GetOutputDirectory() << "\n");
   muLogMacro(<< "Output Format: " << neop->GetOutputFormat() << "\n");
@@ -211,11 +218,13 @@ runNeonateSeg(NeoSegParameters* neop, bool debugflag, bool writemoreflag)
 
     atlasreg->SetSuffix(neop->GetSuffix().c_str());
 
+    std::string atlasExt = CheckImageFormat( neop->GetAtlasFormat() , true ) ;
+
     std::string templatefn = atlasdir + std::string("template");
     if (neop->UseT1())
-      templatefn += "T1.nrrd";
+      templatefn += "T1" + atlasExt ;
     if (neop->UseT2())
-      templatefn += "T2.nrrd";
+      templatefn += "T2" + atlasExt ;
     atlasreg->SetTemplateFileName(templatefn.c_str());
 
     atlasreg->SetAtlasOrientation(neop->GetAtlasOrientation());
@@ -223,8 +232,6 @@ runNeonateSeg(NeoSegParameters* neop, bool debugflag, bool writemoreflag)
     atlasreg->SetImageFileNames(neop->GetImages());
     atlasreg->SetImageOrientations(neop->GetImageOrientations());
     atlasreg->SetOutputDirectory(outdir);
-
-    std::string atlasExt = CheckImageFormat( neop->GetAtlasFormat() , true ) ;
     // Compute list of file names for the priors
     DynArray<std::string> priorfnlist;
     {

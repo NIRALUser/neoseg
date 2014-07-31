@@ -70,16 +70,26 @@ EMSParameters
     return false;
 
   bool validFormat = false;
-  if (m_OutputFormat.compare("Analyze") == 0)
-    validFormat = true;
-  if (m_OutputFormat.compare("GIPL") == 0)
-    validFormat = true;
-  if (m_OutputFormat.compare("Meta") == 0)
-    validFormat = true;
-  if (m_OutputFormat.compare("nrrd") == 0 || m_OutputFormat.compare("NRRD"))
-    validFormat = true;
-  if (m_OutputFormat.compare("nii.gz") == 0 || m_OutputFormat.compare("NII.GZ"))
-    validFormat = true;
+
+  m_OutputFormat.erase( m_OutputFormat.find_last_not_of( " \n\r\t") + 1 ) ;//if XML empty, format is just white spaces. We remove them.
+  std::transform( m_OutputFormat.begin(), m_OutputFormat.end(), m_OutputFormat.begin(), ::tolower ) ;//set string to lower case to simplify the comparisons
+  if( !m_OutputFormat.compare( "analyze" ) 
+   || !m_OutputFormat.compare( "hdr" )
+   || !m_OutputFormat.compare( "gipl" )
+   || !m_OutputFormat.compare( "gipl.gz" )
+   || !m_OutputFormat.compare( "nrrd" )
+   || !m_OutputFormat.compare( "nhdr" )
+   || !m_OutputFormat.compare( "nii.gz" )
+   || !m_OutputFormat.compare( "nii" )
+   || !m_OutputFormat.compare( "Meta" )
+   || !m_OutputFormat.compare( "mha" )
+   || !m_OutputFormat.compare( "mhd" )
+         )
+  {
+    validFormat = true ;
+  }
+
+
 
   if (!validFormat)
     return false;

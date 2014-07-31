@@ -16,6 +16,7 @@ NeoSegParameters
   m_Prior1 = 0.5;
   m_Prior5 = 1.0;
 
+  m_AtlasFormat = "gipl" ; //In case the format is not specified, we use the old default format 
 }
 
 NeoSegParameters
@@ -68,4 +69,5 @@ NeoSegParameters
   os << "Mahalanobis threshold = " << m_MahalanobisThreshold << std::endl;
   os << "Kernel width = " << m_KernelWidth << std::endl;
   os << "Prior threshold = " << m_PriorThreshold << std::endl;
+  os << "Atlas Format = " << m_AtlasFormat << std::endl ;
 }
