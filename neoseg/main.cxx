@@ -10,6 +10,7 @@
 #include <exception>
 #include <iostream>
 
+#define NEO_VERSION "2.0.0"
 
 void
 printUsage(char* progname)
@@ -33,7 +34,7 @@ main(int argc, char** argv)
 
   if (strcmp(argv[1], "--version") == 0)
   {   
-    std::cerr << "neoseg  version: 1.99"<<std::endl; 
+    std::cerr << "neoseg  version: " << NEO_VERSION << std::endl ; 
     return 0; 
   }
 

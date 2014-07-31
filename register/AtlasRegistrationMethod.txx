@@ -18,7 +18,8 @@
 #include "Log.h"
 #include "muFile.h"
 
-#include "OrientImageModifier.h"
+//#include "OrientImageModifier.h"
+#include "ImageDirectionStandardizer.h"
 
 #include <fstream>
 
@@ -505,8 +506,11 @@ AtlasRegistrationMethod<TOutputPixel, TProbabilityPixel>
   typedef itk::ImageFileReader<InternalImageType> ReaderType;
   typedef typename ReaderType::Pointer ReaderPointer;
 
-  typedef OrientImageModifier<InternalImageType> OrienterType;
-  typedef typename OrienterType::Pointer OrienterPointer;
+/*  typedef OrientImageModifier<InternalImageType> OrienterType;
+  typedef typename OrienterType::Pointer OrienterPointer;*/
+
+  typedef ImageDirectionStandardizer<InternalImageType> DirectionFixerType;
+  typedef typename DirectionFixerType::Pointer DirectionFixerPointer;
 
   // Define the blurring filter type
   typedef itk::DiscreteGaussianImageFilter<InternalImageType, InternalImageType>
@@ -545,14 +549,19 @@ AtlasRegistrationMethod<TOutputPixel, TProbabilityPixel>
 
     reader->Update();
 
-    InternalImagePointer templateImg = reader->GetOutput();
+    InternalImagePointer templateImg = reader->GetOutput() ;
 
     if (m_AtlasOrientation.length() != 0)
     {
-      OrienterPointer orienter = OrienterType::New();
+/*      OrienterPointer orienter = OrienterType::New();
       orienter->SetSourceOrientation(m_AtlasOrientation);
       orienter->SetTargetOrientation(m_ImageOrientations[0]);
-      orienter->Modify(templateImg);
+      orienter->Modify(templateImg);*/
+
+      DirectionFixerPointer dirstandf = DirectionFixerType::New();
+      dirstandf->SetTargetDirectionFromString(
+        first, m_ImageOrientations[0]);
+      templateImg = dirstandf->Standardize(templateImg, m_AtlasOrientation);
     }
 
     muLogMacro(<< "Registering template to first image...\n");
@@ -578,10 +587,14 @@ AtlasRegistrationMethod<TOutputPixel, TProbabilityPixel>
 
     InternalImagePointer img_i = imgreader->GetOutput();
 
-    OrienterPointer orienter = OrienterType::New();
+   /* OrienterPointer orienter = OrienterType::New();
     orienter->SetSourceOrientation(m_ImageOrientations[i]);
     orienter->SetTargetOrientation(m_ImageOrientations[0]);
-    orienter->Modify(img_i);
+    orienter->Modify(img_i);*/
+    DirectionFixerPointer dirstandf = DirectionFixerType::New();
+    dirstandf->SetTargetDirectionFromString(
+        first,m_ImageOrientations[0]);
+    img_i = dirstandf->Standardize(img_i, m_ImageOrientations[i]);
 
 #if DO_BLUR 
     itkDebugMacro(<< "Blurring image " << i+1 << " with stddev = 0.1...");
@@ -622,9 +635,13 @@ AtlasRegistrationMethod<TOutputPixel, TProbabilityPixel>
   typedef itk::ImageFileReader<InternalImageType> ReaderType;
   typedef typename ReaderType::Pointer ReaderPointer;
 
-  // Orientation modifier
+/*  // Orientation modifier
   typedef OrientImageModifier<InternalImageType> OrienterType;
-  typedef typename OrienterType::Pointer OrienterPointer;
+  typedef typename OrienterType::Pointer OrienterPointer;*/
+
+  // Orientation standardizer
+  typedef ImageDirectionStandardizer<InternalImageType> DirectionFixerType;
+  typedef typename DirectionFixerType::Pointer DirectionFixerPointer;
 
   // Get the first image (for reference)
   InternalImagePointer first;
@@ -662,18 +679,23 @@ AtlasRegistrationMethod<TOutputPixel, TProbabilityPixel>
     ReaderPointer reader = ReaderType::New();
     reader->SetFileName(m_TemplateFileName.c_str());
     reader->Update();
-
+    InternalImagePointer img = reader->GetOutput() ;
     if (m_AtlasOrientation.length() != 0)
     {
-      OrienterPointer orienter = OrienterType::New();
+     /* OrienterPointer orienter = OrienterType::New();
       orienter->SetSourceOrientation(m_AtlasOrientation);
       orienter->SetTargetOrientation(m_ImageOrientations[0]);
-      orienter->Modify(reader->GetOutput());
+      orienter->Modify(reader->GetOutput());*/
+
+      DirectionFixerPointer dirstandf = DirectionFixerType::New();
+      dirstandf->SetTargetDirectionFromString(
+        first , m_ImageOrientations[0] );
+      img = dirstandf->Standardize(img, m_AtlasOrientation);
     }
 
     ResamplePointer resampler = ResampleType::New();
 
-    resampler->SetInput(reader->GetOutput());
+    resampler->SetInput(img);
     resampler->SetTransform(m_TemplateAffineTransform);
 
     resampler->SetInterpolator(linearInt);
@@ -697,20 +719,24 @@ AtlasRegistrationMethod<TOutputPixel, TProbabilityPixel>
 
     ReaderPointer reader = ReaderType::New();
     reader->SetFileName(m_ProbabilityFileNames[i].c_str());
-
     reader->Update();
-
+    InternalImagePointer img = reader->GetOutput() ;
     if (m_AtlasOrientation.length() != 0)
     {
-      OrienterPointer orienter = OrienterType::New();
+      /*OrienterPointer orienter = OrienterType::New();
       orienter->SetSourceOrientation(m_AtlasOrientation);
       orienter->SetTargetOrientation(m_ImageOrientations[0]);
-      orienter->Modify(reader->GetOutput());
+      orienter->Modify(reader->GetOutput());*/
+      
+      DirectionFixerPointer dirstandf = DirectionFixerType::New();
+      dirstandf->SetTargetDirectionFromString(
+        first, m_ImageOrientations[0]);
+      img = dirstandf->Standardize(img, m_AtlasOrientation);
     }
 
     ResamplePointer resampler = ResampleType::New();
 
-    resampler->SetInput(reader->GetOutput());
+    resampler->SetInput(img);
     resampler->SetTransform(m_TemplateAffineTransform);
 
     resampler->SetInterpolator(linearInt);
@@ -755,17 +781,20 @@ AtlasRegistrationMethod<TOutputPixel, TProbabilityPixel>
   {
     ReaderPointer reader = ReaderType::New();
     reader->SetFileName(m_ImageFileNames[i].c_str());
-
     reader->Update();
-
-    OrienterPointer orienter = OrienterType::New();
+    InternalImagePointer img = reader->GetOutput() ;
+   /* OrienterPointer orienter = OrienterType::New();
     orienter->SetSourceOrientation(m_ImageOrientations[i]);
     orienter->SetTargetOrientation(m_ImageOrientations[0]);
-    orienter->Modify(reader->GetOutput());
+    orienter->Modify(reader->GetOutput());*/
+    DirectionFixerPointer dirstandf = DirectionFixerType::New();
+    dirstandf->SetTargetDirectionFromString(
+        first, m_ImageOrientations[0]);
+    img = dirstandf->Standardize(img, m_ImageOrientations[i]);
 
     ResamplePointer resampler = ResampleType::New();
 
-    resampler->SetInput(reader->GetOutput());
+    resampler->SetInput( img ) ;
     resampler->SetTransform(m_AffineTransforms[i]);
 
     if (m_UseNonLinearInterpolation)

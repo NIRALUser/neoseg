@@ -36,8 +36,9 @@
 #include <math.h>
 #include <stdlib.h>
 
+#ifndef LINE_MAX
 #define LINE_MAX 1024
-
+#endif
 
 /*
 // Observer for the amoeba optimizer
