@@ -41,7 +41,6 @@ SET(NEOSEG_SRCS
   ../spr/KMeansEstimator.cxx
   ../spr/KNNClassifier.cxx
   ../spr/ReducedSetDensityEstimator.cxx
-  ../xmlio/EMSParametersXMLFile.cxx
   ../xmlio/NeoSegParametersXMLFile.cxx
   NeonateSegmentationFilter.cxx
   NeoSegParameters.cxx
