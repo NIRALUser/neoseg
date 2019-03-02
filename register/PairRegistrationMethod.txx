@@ -397,7 +397,12 @@ std::cout << "20% of #pixels = " << numSamples << std::endl;
   metric->SetSampleSpacing(1.0);
 
   registration->SetNumberOfLevels(3);
+
+#if ITK_VERSION_MAJOR <= 4 and ITK_VERSION_MINOR <= 8
   registration->StartRegistration();
+#else
+  registration->Update();
+#endif
 
   affine->SetParameters(registration->GetLastTransformParameters());
 #else
@@ -532,7 +537,11 @@ PairRegistrationMethod<TPixel>
 
   metric->ReinitializeSeed( 76926294 );
 
-  registration->Update();
+  #if ITK_VERSION_MAJOR <= 4 and ITK_VERSION_MINOR <= 8
+    registration->StartRegistration();
+  #else
+    registration->Update();
+  #endif
 
   btrafo->SetParametersByValue(registration->GetLastTransformParameters());
 
