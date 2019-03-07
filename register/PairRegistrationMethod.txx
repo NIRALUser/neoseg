@@ -467,7 +467,7 @@ PairRegistrationMethod<TPixel>
 
   registration->SetFixedImageRegion(fixedImg->GetLargestPossibleRegion());
 
-  double gridSize[3] = {nx, ny, nz};
+  double gridSize[3] = {(double)nx,(double)ny,(double)nz};
 
   typedef BSplineTransformType::RegionType RegionType;
   RegionType bsplineRegion;
